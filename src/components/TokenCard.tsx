@@ -7,17 +7,18 @@ interface TokenCardProps {
   mint: string;
   balance: number;
   symbol: string;
-  onBurn: () => Promise<void>;
+  address: string;
+  onBurn: (mint: string, address: string) => Promise<void>;
 }
 
-export const TokenCard = ({ mint, balance, symbol, onBurn }: TokenCardProps) => {
+export const TokenCard = ({ mint, balance, symbol, address, onBurn }: TokenCardProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
   const handleBurn = async () => {
     try {
       setIsLoading(true);
-      await onBurn();
+      await onBurn(mint, address);
       toast({
         title: "Success",
         description: `Burned ${balance} ${symbol} tokens`,

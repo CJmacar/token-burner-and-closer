@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
-import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
+import { TOKEN_PROGRAM_ID, createBurnInstruction, getAssociatedTokenAddress, createCloseAccountInstruction } from '@solana/spl-token';
+import { PublicKey, Transaction } from '@solana/web3.js';
 import { WalletButton } from './WalletButton';
 import { TokenList } from './TokenList';
 import { Button } from '@/components/ui/button';
@@ -10,11 +11,12 @@ interface TokenAccount {
   mint: string;
   balance: number;
   symbol: string;
+  address: string;
 }
 
 export const TokenBurner = () => {
   const { connection } = useConnection();
-  const { publicKey, connected } = useWallet();
+  const { publicKey, connected, sendTransaction } = useWallet();
   const [tokens, setTokens] = useState<TokenAccount[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
@@ -29,15 +31,24 @@ export const TokenBurner = () => {
         { programId: TOKEN_PROGRAM_ID }
       );
 
-      const tokenAccounts = accounts.value.map(account => {
-        const parsedInfo = account.account.data.parsed.info;
-        return {
-          mint: parsedInfo.mint,
-          balance: parsedInfo.tokenAmount.uiAmount,
-          symbol: parsedInfo.tokenAmount.symbol || 'Unknown',
-        };
-      });
+      console.log('Raw accounts:', accounts);
 
+      const tokenAccounts = accounts.value
+        .filter(account => {
+          const parsedInfo = account.account.data.parsed.info;
+          return parsedInfo.tokenAmount.uiAmount > 0;
+        })
+        .map(account => {
+          const parsedInfo = account.account.data.parsed.info;
+          return {
+            mint: parsedInfo.mint,
+            balance: parsedInfo.tokenAmount.uiAmount,
+            symbol: parsedInfo.symbol || 'Unknown',
+            address: account.pubkey.toBase58()
+          };
+        });
+
+      console.log('Processed token accounts:', tokenAccounts);
       setTokens(tokenAccounts);
     } catch (error) {
       console.error('Error fetching token accounts:', error);
@@ -59,17 +70,62 @@ export const TokenBurner = () => {
     }
   }, [connected, publicKey]);
 
-  const handleBurnToken = async (mint: string) => {
-    // Implement token burning logic here
-    console.log('Burning token:', mint);
-    // This is a placeholder - implement actual burning logic
-    await new Promise(resolve => setTimeout(resolve, 1000));
+  const handleBurnToken = async (mint: string, tokenAddress: string) => {
+    if (!publicKey) return;
+
+    try {
+      const mintPubkey = new PublicKey(mint);
+      const tokenAccountPubkey = new PublicKey(tokenAddress);
+      
+      const transaction = new Transaction();
+      
+      // Get token account info
+      const tokenAccountInfo = await connection.getAccountInfo(tokenAccountPubkey);
+      if (!tokenAccountInfo) throw new Error('Token account not found');
+      
+      // Create burn instruction
+      const burnInstruction = createBurnInstruction(
+        tokenAccountPubkey,
+        mintPubkey,
+        publicKey,
+        1, // amount to burn
+        []
+      );
+      
+      // Create close account instruction
+      const closeInstruction = createCloseAccountInstruction(
+        tokenAccountPubkey,
+        publicKey,
+        publicKey,
+        []
+      );
+      
+      transaction.add(burnInstruction, closeInstruction);
+      
+      const signature = await sendTransaction(transaction, connection);
+      await connection.confirmTransaction(signature);
+      
+      toast({
+        title: "Success",
+        description: "Token burned successfully",
+      });
+      
+      // Refresh token accounts
+      await fetchTokenAccounts();
+    } catch (error) {
+      console.error('Error burning token:', error);
+      toast({
+        title: "Error",
+        description: "Failed to burn token",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleBurnAll = async () => {
     try {
       for (const token of tokens) {
-        await handleBurnToken(token.mint);
+        await handleBurnToken(token.mint, token.address);
       }
       toast({
         title: "Success",

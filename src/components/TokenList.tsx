@@ -5,11 +5,12 @@ interface TokenAccount {
   mint: string;
   balance: number;
   symbol: string;
+  address: string;
 }
 
 interface TokenListProps {
   tokens: TokenAccount[];
-  onBurnToken: (mint: string) => Promise<void>;
+  onBurnToken: (mint: string, address: string) => Promise<void>;
 }
 
 export const TokenList = ({ tokens, onBurnToken }: TokenListProps) => {
@@ -31,7 +32,7 @@ export const TokenList = ({ tokens, onBurnToken }: TokenListProps) => {
         <TokenCard
           key={token.mint}
           {...token}
-          onBurn={() => onBurnToken(token.mint)}
+          onBurn={onBurnToken}
         />
       ))}
     </div>
