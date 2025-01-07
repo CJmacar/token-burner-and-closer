@@ -31,15 +31,19 @@ export const TokenBurner = () => {
       console.log('Fetching token accounts for public key:', publicKey.toBase58());
       setIsLoading(true);
       
-      const accounts = await connection.getParsedTokenAccountsByOwner(
+      const response = await connection.getParsedTokenAccountsByOwner(
         publicKey,
         { programId: TOKEN_PROGRAM_ID },
         'confirmed'
       );
 
-      console.log('Found token accounts:', accounts.value.length);
+      if (!response || !response.value) {
+        throw new Error('Failed to fetch token accounts');
+      }
 
-      const tokenAccounts = accounts.value
+      console.log('Found token accounts:', response.value.length);
+
+      const tokenAccounts = response.value
         .filter(account => {
           const parsedInfo = account.account.data.parsed.info;
           const balance = parsedInfo.tokenAmount.uiAmount;
@@ -62,7 +66,7 @@ export const TokenBurner = () => {
       console.error('Error fetching token accounts:', error);
       toast({
         title: "Error",
-        description: "Failed to fetch token accounts",
+        description: "Failed to fetch token accounts. Please check your connection and try again.",
         variant: "destructive",
       });
     } finally {

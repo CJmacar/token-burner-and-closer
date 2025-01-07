@@ -6,14 +6,14 @@ import {
 } from '@solana/wallet-adapter-react';
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
 import { PhantomWalletAdapter } from '@solana/wallet-adapter-wallets';
-import { clusterApiUrl } from '@solana/web3.js';
+import { Connection } from '@solana/web3.js';
 import { TokenBurner } from '@/components/TokenBurner';
 import '@solana/wallet-adapter-react-ui/styles.css';
 
 const Index = () => {
-  // Use mainnet-beta instead of devnet to see actual tokens
+  // Use a more reliable RPC endpoint
   const network = WalletAdapterNetwork.Mainnet;
-  const endpoint = useMemo(() => clusterApiUrl(network), [network]);
+  const endpoint = "https://rpc.helius.xyz/?api-key=YOUR_API_KEY"; // We'll need to set this up securely
   
   // Initialize wallet adapter
   const wallets = useMemo(
