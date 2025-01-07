@@ -9,6 +9,13 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
     - uses: actions/checkout@v4
@@ -26,7 +33,14 @@ jobs:
         VITE_HELIUS_KEY: ${{ secrets.HELIUS_KEY }}
       run: npm run build
       
-    - name: Deploy
-      uses: actions/deploy-pages@v4
+    - name: Setup Pages
+      uses: actions/configure-pages@v4
+      
+    - name: Upload artifact
+      uses: actions/upload-pages-artifact@v3
       with:
-        artifact_name: dist
+        path: './dist'
+        
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v4
