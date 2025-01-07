@@ -12,7 +12,7 @@ import '@solana/wallet-adapter-react-ui/styles.css';
 
 const Index = () => {
   // Use mainnet-beta instead of devnet to see actual tokens
-  const network = WalletAdapterNetwork.MainnetBeta;
+  const network = WalletAdapterNetwork.Mainnet;
   const endpoint = useMemo(() => clusterApiUrl(network), [network]);
   
   // Initialize wallet adapter
