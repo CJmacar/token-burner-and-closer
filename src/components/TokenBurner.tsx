@@ -33,32 +33,27 @@ export const TokenBurner = () => {
       
       const accounts = await connection.getParsedTokenAccountsByOwner(
         publicKey,
-        { programId: TOKEN_PROGRAM_ID }
+        { programId: TOKEN_PROGRAM_ID },
+        'confirmed'
       );
 
       console.log('Found token accounts:', accounts.value.length);
-      console.log('Raw accounts data:', accounts.value);
 
       const tokenAccounts = accounts.value
+        .filter(account => {
+          const parsedInfo = account.account.data.parsed.info;
+          const balance = parsedInfo.tokenAmount.uiAmount;
+          console.log(`Token ${parsedInfo.mint} balance: ${balance}`);
+          return balance > 0;
+        })
         .map(account => {
           const parsedInfo = account.account.data.parsed.info;
-          console.log('Processing account:', {
-            address: account.pubkey.toBase58(),
-            mint: parsedInfo.mint,
-            amount: parsedInfo.tokenAmount,
-          });
-          
           return {
             mint: parsedInfo.mint,
             balance: parsedInfo.tokenAmount.uiAmount,
             symbol: parsedInfo.symbol || 'Unknown',
             address: account.pubkey.toBase58()
           };
-        })
-        .filter(account => {
-          const hasBalance = account.balance > 0;
-          console.log(`Token ${account.mint} has balance: ${account.balance}`);
-          return hasBalance;
         });
 
       console.log('Processed token accounts:', tokenAccounts);
@@ -76,14 +71,14 @@ export const TokenBurner = () => {
   };
 
   useEffect(() => {
-    if (connected) {
+    if (connected && publicKey) {
       console.log('Wallet connected, fetching token accounts...');
       fetchTokenAccounts();
     } else {
       console.log('Wallet disconnected, clearing tokens');
       setTokens([]);
     }
-  }, [connected, publicKey]);
+  }, [connected, publicKey, connection]);
 
   const handleBurnToken = async (mint: string, tokenAddress: string) => {
     if (!publicKey) return;

@@ -5,22 +5,29 @@ import {
   WalletProvider,
 } from '@solana/wallet-adapter-react';
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
+import { PhantomWalletAdapter } from '@solana/wallet-adapter-wallets';
 import { clusterApiUrl } from '@solana/web3.js';
 import { TokenBurner } from '@/components/TokenBurner';
 import '@solana/wallet-adapter-react-ui/styles.css';
 
 const Index = () => {
-  const network = WalletAdapterNetwork.Devnet;
+  // Use mainnet-beta instead of devnet to see actual tokens
+  const network = WalletAdapterNetwork.MainnetBeta;
   const endpoint = useMemo(() => clusterApiUrl(network), [network]);
+  
+  // Initialize wallet adapter
+  const wallets = useMemo(
+    () => [
+      new PhantomWalletAdapter(),
+    ],
+    []
+  );
 
   return (
     <ConnectionProvider endpoint={endpoint}>
       <WalletProvider 
-        wallets={[]} 
+        wallets={wallets}
         autoConnect
-        onError={(error) => {
-          console.error('Wallet error:', error);
-        }}
       >
         <WalletModalProvider>
           <div className="min-h-screen p-4 sm:p-6 lg:p-8">
