@@ -15,12 +15,7 @@ const Index = () => {
   const heliusKey = import.meta.env.VITE_HELIUS_KEY;
   
   // Construct the endpoint URL correctly
-  const endpoint = heliusKey ? 
-    `https://mainnet.helius-rpc.com/?api-key=${heliusKey}` : 
-    'https://api.mainnet-beta.solana.com';
-  
-  // Debug logging (safely)
-  console.log('Using Helius endpoint:', endpoint.replace(heliusKey || '', '[REDACTED]'));
+  const endpoint = `https://mainnet.helius-rpc.com/?api-key=${heliusKey}`;
   
   const wallets = useMemo(
     () => [
