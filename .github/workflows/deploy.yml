@@ -36,10 +36,16 @@ jobs:
     - name: Install Dependencies
       run: npm install
       
+    - name: Debug Environment
+      run: |
+        echo "Checking if HELIUS_KEY is set (should be non-empty): ${{ secrets.HELIUS_KEY != '' }}"
+        
     - name: Build
       env:
         VITE_HELIUS_KEY: ${{ secrets.HELIUS_KEY }}
-      run: npm run build
+      run: |
+        echo "Building with VITE_HELIUS_KEY length: ${#VITE_HELIUS_KEY}"
+        npm run build
       
     - name: Setup Pages
       uses: actions/configure-pages@v4

@@ -13,9 +13,12 @@ import '@solana/wallet-adapter-react-ui/styles.css';
 const Index = () => {
   // Use Helius RPC endpoint with API key
   const network = WalletAdapterNetwork.Mainnet;
-  const endpoint = `https://rpc.helius.xyz/?api-key=${import.meta.env.VITE_HELIUS_KEY}`; 
+  const heliusKey = import.meta.env.VITE_HELIUS_KEY;
+  const endpoint = `https://rpc.helius.xyz/?api-key=${heliusKey}`; 
   
-  console.log('Using endpoint:', endpoint.replace(import.meta.env.VITE_HELIUS_KEY, '[REDACTED]')); // Safe logging
+  // Debug logging (safely)
+  console.log('Helius key exists:', !!heliusKey);
+  console.log('Using endpoint:', endpoint.replace(heliusKey || '', '[REDACTED]'));
   
   // Initialize wallet adapter
   const wallets = useMemo(
