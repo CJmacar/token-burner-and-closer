@@ -6,7 +6,6 @@ import {
 } from '@solana/wallet-adapter-react';
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
 import { PhantomWalletAdapter } from '@solana/wallet-adapter-wallets';
-import { Connection } from '@solana/web3.js';
 import { TokenBurner } from '@/components/TokenBurner';
 import '@solana/wallet-adapter-react-ui/styles.css';
 
