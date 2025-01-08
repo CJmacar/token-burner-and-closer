@@ -16,7 +16,7 @@ const Index = () => {
   
   // Construct the endpoint URL correctly
   const endpoint = heliusKey ? 
-    `https://rpc.helius.xyz/?api-key=${heliusKey}` : 
+    `https://mainnet.helius-rpc.com/?api-key=${heliusKey}` : 
     'https://api.mainnet-beta.solana.com';
   
   // Debug logging (safely)
