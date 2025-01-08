@@ -11,9 +11,11 @@ import { TokenBurner } from '@/components/TokenBurner';
 import '@solana/wallet-adapter-react-ui/styles.css';
 
 const Index = () => {
-  // Use a more reliable RPC endpoint
+  // Use Helius RPC endpoint with API key
   const network = WalletAdapterNetwork.Mainnet;
   const endpoint = `https://rpc.helius.xyz/?api-key=${import.meta.env.VITE_HELIUS_KEY}`; 
+  
+  console.log('Using endpoint:', endpoint.replace(import.meta.env.VITE_HELIUS_KEY, '[REDACTED]')); // Safe logging
   
   // Initialize wallet adapter
   const wallets = useMemo(
