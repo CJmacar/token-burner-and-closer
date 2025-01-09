@@ -38,7 +38,4 @@ jobs:
     - name: Build
       env:
         VITE_HELIUS_KEY: ${{ secrets.HELIUS_KEY }}
-      run: |
-        echo "Building with VITE_HELIUS_KEY length: ${#VITE_HELIUS_KEY}"
-        echo "First few characters of VITE_HELIUS_KEY (safe to show): ${VITE_HELIUS_KEY:0:4}..."
-        npm run build
+      run: npm run build
