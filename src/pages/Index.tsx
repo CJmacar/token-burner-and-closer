@@ -13,6 +13,12 @@ const Index = () => {
   const network = WalletAdapterNetwork.Mainnet;
   const heliusKey = import.meta.env.VITE_HELIUS_KEY;
   
+  if (!heliusKey) {
+    console.error('VITE_HELIUS_KEY is not set');
+  } else {
+    console.log('VITE_HELIUS_KEY is set with length:', heliusKey.length);
+  }
+  
   // Construct the endpoint URL correctly
   const endpoint = `https://mainnet.helius-rpc.com/?api-key=${heliusKey}`;
   
