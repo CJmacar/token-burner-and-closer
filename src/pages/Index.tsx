@@ -13,13 +13,25 @@ const Index = () => {
   const network = WalletAdapterNetwork.Mainnet;
   const heliusKey = import.meta.env.VITE_HELIUS_KEY;
   
+  // More detailed logging for debugging
+  console.log('Environment variables check:');
+  console.log('VITE_HELIUS_KEY exists:', !!heliusKey);
+  console.log('VITE_HELIUS_KEY length:', heliusKey?.length);
+  
   if (!heliusKey) {
-    console.error('VITE_HELIUS_KEY is not set');
-  } else {
-    console.log('VITE_HELIUS_KEY is set with length:', heliusKey.length);
+    console.error('VITE_HELIUS_KEY is not set. Please ensure it is set in GitHub Secrets.');
+    return (
+      <div className="min-h-screen p-4 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-red-600 mb-4">Configuration Error</h1>
+          <p className="text-gray-600">
+            The Helius API key is not configured. Please check the GitHub repository secrets.
+          </p>
+        </div>
+      </div>
+    );
   }
   
-  // Construct the endpoint URL correctly
   const endpoint = `https://mainnet.helius-rpc.com/?api-key=${heliusKey}`;
   
   const wallets = useMemo(
