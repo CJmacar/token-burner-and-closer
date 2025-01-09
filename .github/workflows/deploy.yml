@@ -2,9 +2,14 @@ name: Build
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, master ]  # Added master branch
   pull_request:
-    branches: [ main ]
+    branches: [ main, master ]  # Added master branch
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
 
 jobs:
   build:
