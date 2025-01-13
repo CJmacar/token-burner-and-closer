@@ -64,19 +64,20 @@ export const TokenBurner = (heliusKey) => {
           console.log(`Token ${parsedInfo.mint} balance: ${balance}`);
           return balance > 0;
         })
-        .map(account => {
+        .map(async account => {
           const parsedInfo = account.account.data.parsed.info;
           const symbol = await fetchTokenMetadata(parsedInfo.mint, heliusKey);
-              return {
-                mint: parsedInfo.mint,
-                balance: parsedInfo.tokenAmount.uiAmount,
-                symbol: symbol,
-                address: account.pubkey.toBase58()
-              };
+          return {
+            mint: parsedInfo.mint,
+            balance: parsedInfo.tokenAmount.uiAmount,
+            symbol: symbol,
+            address: account.pubkey.toBase58()
+          };
         });
 
       console.log('Processed token accounts:', tokenAccounts);
-      setTokens(tokenAccounts);
+      const resolvedTokenAccounts = await Promise.all(tokenAccounts);
+      setTokens(resolvedTokenAccounts);
     } catch (error) {
       console.error('Error fetching token accounts:', error);
       toast({
