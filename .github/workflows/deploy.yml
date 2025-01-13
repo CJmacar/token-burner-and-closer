@@ -30,8 +30,8 @@ jobs:
       
     - name: Debug Environment
       run: |
-        echo "Checking if HELIUS_KEY is set (should be non-empty): ${{ secrets.HELIUS_KEY != '' }}"
-        echo "First few characters of key (safe to show): ${HELIUS_KEY:0:4}..."
+        echo "HELIUS_KEY exists: ${{ secrets.HELIUS_KEY != '' }}"
+        echo "VITE_HELIUS_KEY will be: ${{ secrets.HELIUS_KEY }}"
       env:
         HELIUS_KEY: ${{ secrets.HELIUS_KEY }}
       
@@ -39,16 +39,16 @@ jobs:
       env:
         VITE_HELIUS_KEY: ${{ secrets.HELIUS_KEY }}
       run: |
-        echo "Building with VITE_HELIUS_KEY set: ${{ env.VITE_HELIUS_KEY != '' }}"
+        echo "VITE_HELIUS_KEY is set: ${{ env.VITE_HELIUS_KEY != '' }}"
         npm run build
         
     - name: Upload artifact
       uses: actions/upload-pages-artifact@v3
       with:
         path: dist
-        name: github-pages-${{ github.run_number }}
+        name: github-pages
 
     - name: Deploy to GitHub Pages
       uses: actions/deploy-pages@v3
       with:
-        token: ${{ secrets.GITHUB_TOKEN }}
+        artifact_name: github-pages
