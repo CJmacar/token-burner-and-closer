@@ -42,13 +42,13 @@ jobs:
         echo "Building with VITE_HELIUS_KEY set: ${{ env.VITE_HELIUS_KEY != '' }}"
         npm run build
         
-    - name: Upload artifact
-      uses: actions/upload-pages-artifact@v3
-      with:
-        path: dist
-        name: github-pages-${{ github.run_number }}
+    # - name: Upload artifact
+    #   uses: actions/upload-pages-artifact@v3
+    #   with:
+    #     path: dist
+    #     name: github-pages-${{ github.run_number }}
 
-    - name: Deploy to GitHub Pages
-      uses: actions/deploy-pages@v3
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
+    # - name: Deploy to GitHub Pages
+    #   uses: actions/deploy-pages@v3
+    #   with:
+    #     token: ${{ secrets.GITHUB_TOKEN }}
