@@ -58,7 +58,7 @@ const Index = () => {
                   Burn tokens and reclaim your SOL
                 </p>
               </div>
-              <TokenBurner />
+              <TokenBurner heliusKey={heliusKey}/>
             </div>
           </div>
         </WalletModalProvider>

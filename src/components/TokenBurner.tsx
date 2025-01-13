@@ -7,6 +7,20 @@ import { TokenList } from './TokenList';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
 
+const fetchTokenMetadata = async (mintAddress: string, heliusKey: string) => {
+  try {
+    const response = await fetch(`https://api.helius.xyz/v0/token-metadata?api-key=${heliusKey}&mint=${mintAddress}`);
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    const data = await response.json();
+    return data.symbol || 'Unknown';
+  } catch (error) {
+    console.error('Error fetching token metadata:', error);
+    return 'Unknown';
+  }
+};
+
 interface TokenAccount {
   mint: string;
   balance: number;
@@ -14,7 +28,7 @@ interface TokenAccount {
   address: string;
 }
 
-export const TokenBurner = () => {
+export const TokenBurner = (heliusKey) => {
   const { connection } = useConnection();
   const { publicKey, connected, sendTransaction } = useWallet();
   const [tokens, setTokens] = useState<TokenAccount[]>([]);
@@ -52,12 +66,13 @@ export const TokenBurner = () => {
         })
         .map(account => {
           const parsedInfo = account.account.data.parsed.info;
-          return {
-            mint: parsedInfo.mint,
-            balance: parsedInfo.tokenAmount.uiAmount,
-            symbol: parsedInfo.symbol || 'Unknown',
-            address: account.pubkey.toBase58()
-          };
+          const symbol = await fetchTokenMetadata(parsedInfo.mint, heliusKey);
+              return {
+                mint: parsedInfo.mint,
+                balance: parsedInfo.tokenAmount.uiAmount,
+                symbol: symbol,
+                address: account.pubkey.toBase58()
+              };
         });
 
       console.log('Processed token accounts:', tokenAccounts);
