@@ -109,20 +109,17 @@ export const TokenBurner = (heliusKey) => {
       
       const transaction = new Transaction();
       
-      // Get token account info
       const tokenAccountInfo = await connection.getAccountInfo(tokenAccountPubkey);
       if (!tokenAccountInfo) throw new Error('Token account not found');
       
-      // Create burn instruction
       const burnInstruction = createBurnInstruction(
         tokenAccountPubkey,
         mintPubkey,
         publicKey,
-        1, // amount to burn
+        1,
         []
       );
       
-      // Create close account instruction
       const closeInstruction = createCloseAccountInstruction(
         tokenAccountPubkey,
         publicKey,
@@ -140,15 +137,25 @@ export const TokenBurner = (heliusKey) => {
         description: "Token burned successfully",
       });
       
-      // Refresh token accounts
       await fetchTokenAccounts();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error burning token:', error);
-      toast({
-        title: "Error",
-        description: "Failed to burn token",
-        variant: "destructive",
-      });
+      
+      // Handle user rejection specifically
+      const errorMessage = error.message?.toLowerCase() || '';
+      if (errorMessage.includes('rejected') || errorMessage.includes('user rejected')) {
+        toast({
+          title: "Transaction Cancelled",
+          description: "You cancelled the transaction",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to burn token. Please try again.",
+          variant: "destructive",
+        });
+      }
     }
   };
 
@@ -161,12 +168,21 @@ export const TokenBurner = (heliusKey) => {
         title: "Success",
         description: "All tokens burned successfully",
       });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to burn all tokens",
-        variant: "destructive",
-      });
+    } catch (error: any) {
+      const errorMessage = error.message?.toLowerCase() || '';
+      if (errorMessage.includes('rejected') || errorMessage.includes('user rejected')) {
+        toast({
+          title: "Transaction Cancelled",
+          description: "You cancelled the transaction",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to burn all tokens",
+          variant: "destructive",
+        });
+      }
     }
   };
 
