@@ -9,14 +9,18 @@ export const useSupabaseSecret = (secretName: string) => {
         .from('secrets')
         .select('value')
         .eq('name', secretName)
-        .single();
+        .maybeSingle();
       
       if (error) {
         console.error('Error fetching secret:', error);
-        return null;
+        throw error;
       }
       
-      return data?.value;
+      if (!data) {
+        throw new Error(`Secret ${secretName} not found`);
+      }
+      
+      return data.value;
     },
   });
 };
