@@ -17,7 +17,8 @@ export const useSupabaseSecret = (secretName: string) => {
       }
       
       if (!data) {
-        throw new Error(`Secret ${secretName} not found`);
+        console.error(`Secret ${secretName} not found`);
+        return null;
       }
       
       return data.value;

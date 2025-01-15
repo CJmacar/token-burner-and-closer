@@ -12,7 +12,7 @@ import '@solana/wallet-adapter-react-ui/styles.css';
 
 const Index = () => {
   const network = WalletAdapterNetwork.Mainnet;
-  const { data: heliusKey, isLoading } = useSupabaseSecret('HELIUS_KEY');
+  const { data: heliusKey, isLoading, isError } = useSupabaseSecret('HELIUS_KEY');
   
   const wallets = useMemo(
     () => [
@@ -31,13 +31,13 @@ const Index = () => {
     );
   }
 
-  if (!heliusKey) {
+  if (isError || !heliusKey) {
     return (
       <div className="min-h-screen p-4 flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-red-600 mb-4">Configuration Error</h1>
           <p className="text-gray-600">
-            The Helius API key is not configured. Please set it in the project secrets.
+            The Helius API key is not configured correctly. Please check the project settings and try again.
           </p>
         </div>
       </div>
