@@ -14,10 +14,9 @@ const Index = () => {
   const network = WalletAdapterNetwork.Mainnet;
   const { data: heliusKey, isLoading, isError } = useSupabaseSecret('HELIUS_KEY');
   
+  // Initialize wallet adapter only if window is defined
   const wallets = useMemo(
-    () => [
-      new PhantomWalletAdapter(),
-    ],
+    () => typeof window !== 'undefined' ? [new PhantomWalletAdapter()] : [],
     []
   );
 
@@ -50,7 +49,7 @@ const Index = () => {
     <ConnectionProvider endpoint={endpoint}>
       <WalletProvider 
         wallets={wallets}
-        autoConnect
+        autoConnect={typeof window !== 'undefined'}
       >
         <WalletModalProvider>
           <div className="min-h-screen p-4 sm:p-6 lg:p-8">
