@@ -28,7 +28,7 @@ interface TokenAccount {
   address: string;
 }
 
-export const TokenBurner = (heliusKey) => {
+export const TokenBurner = ({ heliusKey }: { heliusKey: string }) => {
   const { connection } = useConnection();
   const { publicKey, connected, sendTransaction } = useWallet();
   const [tokens, setTokens] = useState<TokenAccount[]>([]);
