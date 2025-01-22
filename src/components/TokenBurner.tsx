@@ -9,11 +9,15 @@ import { useToast } from '@/components/ui/use-toast';
 
 const fetchTokenMetadata = async (mintAddress: string, heliusKey: string) => {
   try {
+    console.log('Fetching metadata for mint:', mintAddress, 'with key:', heliusKey.substring(0, 5) + '...');
     const response = await fetch(`https://api.helius.xyz/v0/token-metadata?api-key=${heliusKey}&mint=${mintAddress}`);
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Helius API error:', errorText);
       throw new Error('Network response was not ok');
     }
     const data = await response.json();
+    console.log('Metadata received for mint:', mintAddress, 'symbol:', data.symbol);
     return data.symbol || 'Unknown';
   } catch (error) {
     console.error('Error fetching token metadata:', error);
@@ -42,7 +46,8 @@ export const TokenBurner = ({ heliusKey }: { heliusKey: string }) => {
     }
 
     try {
-      console.log('Fetching token accounts for public key:', publicKey.toBase58());
+      console.log('Starting token fetch for wallet:', publicKey.toBase58());
+      console.log('Using Helius key:', heliusKey ? 'Key present' : 'Key missing');
       setIsLoading(true);
       
       const response = await connection.getParsedTokenAccountsByOwner(
@@ -52,34 +57,39 @@ export const TokenBurner = ({ heliusKey }: { heliusKey: string }) => {
       );
 
       if (!response || !response.value) {
+        console.error('Failed to fetch token accounts - no response or empty value');
         throw new Error('Failed to fetch token accounts');
       }
 
-      console.log('Found token accounts:', response.value.length);
+      console.log('Raw token accounts found:', response.value.length);
 
-      const tokenAccounts = response.value
-        .filter(account => {
-          const parsedInfo = account.account.data.parsed.info;
-          const balance = parsedInfo.tokenAmount.uiAmount;
-          console.log(`Token ${parsedInfo.mint} balance: ${balance}`);
-          return balance > 0;
-        })
-        .map(async account => {
-          const parsedInfo = account.account.data.parsed.info;
-          const symbol = await fetchTokenMetadata(parsedInfo.mint, heliusKey);
-          return {
-            mint: parsedInfo.mint,
-            balance: parsedInfo.tokenAmount.uiAmount,
-            symbol: symbol,
-            address: account.pubkey.toBase58()
-          };
-        });
+      const filteredAccounts = response.value.filter(account => {
+        const parsedInfo = account.account.data.parsed.info;
+        const balance = parsedInfo.tokenAmount.uiAmount;
+        console.log(`Token ${parsedInfo.mint} has balance: ${balance}`);
+        return balance > 0;
+      });
 
-      console.log('Processed token accounts:', tokenAccounts);
+      console.log('Filtered accounts with balance > 0:', filteredAccounts.length);
+
+      const tokenAccounts = filteredAccounts.map(async account => {
+        const parsedInfo = account.account.data.parsed.info;
+        console.log('Fetching metadata for token:', parsedInfo.mint);
+        const symbol = await fetchTokenMetadata(parsedInfo.mint, heliusKey);
+        return {
+          mint: parsedInfo.mint,
+          balance: parsedInfo.tokenAmount.uiAmount,
+          symbol: symbol,
+          address: account.pubkey.toBase58()
+        };
+      });
+
+      console.log('Processing', tokenAccounts.length, 'token accounts...');
       const resolvedTokenAccounts = await Promise.all(tokenAccounts);
+      console.log('Final processed tokens:', resolvedTokenAccounts);
       setTokens(resolvedTokenAccounts);
     } catch (error) {
-      console.error('Error fetching token accounts:', error);
+      console.error('Error in fetchTokenAccounts:', error);
       toast({
         title: "Error",
         description: "Failed to fetch token accounts. Please check your connection and try again.",
