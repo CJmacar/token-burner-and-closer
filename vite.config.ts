@@ -21,7 +21,7 @@ export default defineConfig(({ mode }) => ({
     'process.env.NODE_DEBUG': JSON.stringify(''),
     'process.platform': JSON.stringify(''),
     'process.version': JSON.stringify(''),
-    'process.nextTick': 'function(cb) { queueMicrotask(cb); }',
+    'process.nextTick': JSON.stringify('function(cb) { queueMicrotask(cb); }'),
   },
   resolve: {
     alias: {
