@@ -9,6 +9,11 @@ import { useToast } from '@/components/ui/use-toast';
 
 const fetchTokenMetadata = async (mintAddress: string, heliusKey: string) => {
   try {
+    if (!heliusKey || heliusKey === 'your_helius_key_will_be_set_via_secrets_manager') {
+      console.error('Invalid Helius key:', heliusKey);
+      throw new Error('Invalid Helius API key');
+    }
+    
     console.log('Fetching metadata for mint:', mintAddress, 'with key:', heliusKey.substring(0, 5) + '...');
     const response = await fetch(`https://api.helius.xyz/v0/token-metadata?api-key=${heliusKey}&mint=${mintAddress}`);
     if (!response.ok) {
@@ -45,9 +50,19 @@ export const TokenBurner = ({ heliusKey }: { heliusKey: string }) => {
       return;
     }
 
+    if (!heliusKey || heliusKey === 'your_helius_key_will_be_set_via_secrets_manager') {
+      console.error('Invalid Helius key configuration:', heliusKey);
+      toast({
+        title: "Configuration Error",
+        description: "Helius API key is not properly configured",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       console.log('Starting token fetch for wallet:', publicKey.toBase58());
-      console.log('Using Helius key:', heliusKey ? 'Key present' : 'Key missing');
+      console.log('Using Helius key:', heliusKey.substring(0, 5) + '...');
       setIsLoading(true);
       
       const response = await connection.getParsedTokenAccountsByOwner(
