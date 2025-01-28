@@ -30,6 +30,11 @@ export default defineConfig(({ mode }) => ({
       util: 'util',
       buffer: 'buffer',
       stream: 'stream-browserify',
+      path: 'path-browserify',
+      http: 'stream-http',
+      https: 'https-browserify',
+      zlib: 'browserify-zlib',
+      url: 'url/',
     },
   },
   optimizeDeps: {
@@ -37,6 +42,11 @@ export default defineConfig(({ mode }) => ({
       define: {
         global: 'globalThis'
       }
+    }
+  },
+  build: {
+    rollupOptions: {
+      external: ['path', 'fs', 'http', 'https', 'zlib', 'url'],
     }
   }
 }));
