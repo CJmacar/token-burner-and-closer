@@ -82,7 +82,8 @@
     "url": "^0.11.4",
     "util": "^0.12.5",
     "vaul": "^0.9.3",
-    "zod": "^3.23.8"
+    "zod": "^3.23.8",
+    "vite-plugin-node-polyfills": "^0.2.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",
