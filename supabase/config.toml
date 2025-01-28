@@ -1,1 +1,4 @@
 project_id = "fneytolwkfswipmjwzge"
+
+[api]
+enabled = true

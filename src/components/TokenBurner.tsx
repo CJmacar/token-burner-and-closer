@@ -6,23 +6,21 @@ import { WalletButton } from './WalletButton';
 import { TokenList } from './TokenList';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
+import { supabase } from '@/lib/supabase';
 
-const fetchTokenMetadata = async (mintAddress: string, heliusKey: string) => {
+const fetchTokenMetadata = async (mintAddress: string) => {
   try {
-    if (!heliusKey || heliusKey === 'your_helius_key_will_be_set_via_secrets_manager') {
-      console.error('Invalid Helius key:', heliusKey);
-      throw new Error('Invalid Helius API key');
+    console.log('Fetching metadata for mint:', mintAddress);
+    const { data, error } = await supabase.functions.invoke('get-token-metadata', {
+      body: { mintAddress }
+    });
+
+    if (error) {
+      console.error('Edge function error:', error);
+      throw error;
     }
-    
-    console.log('Fetching metadata for mint:', mintAddress, 'with key:', heliusKey.substring(0, 5) + '...');
-    const response = await fetch(`https://api.helius.xyz/v0/token-metadata?api-key=${heliusKey}&mint=${mintAddress}`);
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Helius API error:', errorText);
-      throw new Error('Network response was not ok');
-    }
-    const data = await response.json();
-    console.log('Metadata received for mint:', mintAddress, 'symbol:', data.symbol);
+
+    console.log('Metadata received:', data);
     return data.symbol || 'Unknown';
   } catch (error) {
     console.error('Error fetching token metadata:', error);
@@ -37,7 +35,7 @@ interface TokenAccount {
   address: string;
 }
 
-export const TokenBurner = ({ heliusKey }: { heliusKey: string }) => {
+export const TokenBurner = () => {
   const { connection } = useConnection();
   const { publicKey, connected, sendTransaction } = useWallet();
   const [tokens, setTokens] = useState<TokenAccount[]>([]);
@@ -50,19 +48,8 @@ export const TokenBurner = ({ heliusKey }: { heliusKey: string }) => {
       return;
     }
 
-    if (!heliusKey || heliusKey === 'your_helius_key_will_be_set_via_secrets_manager') {
-      console.error('Invalid Helius key configuration:', heliusKey);
-      toast({
-        title: "Configuration Error",
-        description: "Helius API key is not properly configured",
-        variant: "destructive",
-      });
-      return;
-    }
-
     try {
       console.log('Starting token fetch for wallet:', publicKey.toBase58());
-      console.log('Using Helius key:', heliusKey.substring(0, 5) + '...');
       setIsLoading(true);
       
       const response = await connection.getParsedTokenAccountsByOwner(
@@ -90,7 +77,7 @@ export const TokenBurner = ({ heliusKey }: { heliusKey: string }) => {
       const tokenAccounts = filteredAccounts.map(async account => {
         const parsedInfo = account.account.data.parsed.info;
         console.log('Fetching metadata for token:', parsedInfo.mint);
-        const symbol = await fetchTokenMetadata(parsedInfo.mint, heliusKey);
+        const symbol = await fetchTokenMetadata(parsedInfo.mint);
         return {
           mint: parsedInfo.mint,
           balance: parsedInfo.tokenAmount.uiAmount,
