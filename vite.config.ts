@@ -16,14 +16,15 @@ export default defineConfig(({ mode }) => ({
   plugins: [
     react(),
     mode === 'development' && componentTagger(),
-    nodePolyfills()
+    nodePolyfills({
+      include: ['process', 'buffer', 'util', 'stream']
+    })
   ].filter(Boolean),
   define: {
     'process.env': {},
     'process.env.NODE_DEBUG': JSON.stringify(''),
     'process.platform': JSON.stringify(''),
     'process.version': JSON.stringify(''),
-    'process.nextTick': JSON.stringify('function(cb) { queueMicrotask(cb); }'),
   },
   resolve: {
     alias: {
@@ -44,15 +45,12 @@ export default defineConfig(({ mode }) => ({
       define: {
         global: 'globalThis'
       }
-    },
-    include: ['process']
+    }
   },
   build: {
     commonjsOptions: {
       include: [/node_modules/],
-      transformMixedEsModules: true,
-      defaultIsModuleExports: 'auto',
-      requireReturnsDefault: 'auto'
+      transformMixedEsModules: true
     },
     rollupOptions: {
       external: ['path', 'fs', 'http', 'https', 'zlib', 'url'],
