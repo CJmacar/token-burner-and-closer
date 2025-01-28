@@ -35,7 +35,6 @@ export default defineConfig(({ mode }) => ({
       https: 'https-browserify',
       zlib: 'browserify-zlib',
       url: 'url/',
-      'process/browser': 'process/browser'
     },
   },
   optimizeDeps: {
@@ -48,10 +47,17 @@ export default defineConfig(({ mode }) => ({
   build: {
     commonjsOptions: {
       include: [/node_modules/],
-      transformMixedEsModules: true
+      transformMixedEsModules: true,
+      defaultIsModuleExports: 'auto',
+      requireReturnsDefault: 'auto'
     },
     rollupOptions: {
       external: ['path', 'fs', 'http', 'https', 'zlib', 'url'],
+      output: {
+        manualChunks: {
+          vendor: ['/node_modules/']
+        }
+      }
     }
   }
 }));
