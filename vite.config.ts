@@ -15,17 +15,16 @@ export default defineConfig(({ command }) => ({
     react(),
   ],
   define: {
-    // Add polyfills for Node.js globals
     'process.env': {},
     'process.env.NODE_DEBUG': JSON.stringify(''),
     'process.platform': JSON.stringify(''),
     'process.version': JSON.stringify(''),
-    'process.nextTick': '(cb) => queueMicrotask(cb)',
+    // Remove the arrow function and use a string instead
+    'process.nextTick': 'function(cb) { queueMicrotask(cb); }',
   },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
-      // Add Node.js polyfills
       process: 'process/browser',
       util: 'util',
       buffer: 'buffer',
