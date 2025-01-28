@@ -27,7 +27,6 @@ export default defineConfig(({ mode }) => ({
     alias: {
       "@": path.resolve(__dirname, "./src"),
       process: 'process/browser',
-      util: 'util',
       buffer: 'buffer',
       stream: 'stream-browserify',
       path: 'path-browserify',
@@ -35,6 +34,7 @@ export default defineConfig(({ mode }) => ({
       https: 'https-browserify',
       zlib: 'browserify-zlib',
       url: 'url/',
+      util: 'util'
     },
   },
   optimizeDeps: {
