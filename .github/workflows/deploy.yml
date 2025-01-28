@@ -28,13 +28,6 @@ jobs:
     - name: Install Dependencies
       run: npm install
       
-    - name: Debug Environment
-      run: |
-        echo "HELIUS_KEY exists: ${{ secrets.HELIUS_KEY != '' }}"
-        echo "VITE_HELIUS_KEY will be: ${{ secrets.HELIUS_KEY }}"
-      env:
-        HELIUS_KEY: ${{ secrets.HELIUS_KEY }}
-      
     - name: Build
       env:
         VITE_HELIUS_KEY: ${{ secrets.HELIUS_KEY }}
