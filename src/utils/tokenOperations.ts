@@ -4,7 +4,7 @@ import { supabase } from '@/lib/supabase';
 
 export const fetchTokenMetadata = async (mintAddress: string) => {
   try {
-    console.log('Fetching metadata for mint:', mintAddress);
+    console.log('Calling edge function for mint:', mintAddress);
     const { data, error } = await supabase.functions.invoke('get-token-metadata', {
       body: { mintAddress }
     });
@@ -14,7 +14,7 @@ export const fetchTokenMetadata = async (mintAddress: string) => {
       throw error;
     }
 
-    console.log('Metadata received:', data);
+    console.log('Metadata received from edge function:', data);
     return data.symbol || 'Unknown';
   } catch (error) {
     console.error('Error fetching token metadata:', error);
