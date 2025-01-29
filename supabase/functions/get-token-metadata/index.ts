@@ -1,8 +1,9 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': 'https://token-burner-and-closer.lovable.app',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
 }
 
 serve(async (req) => {
@@ -13,46 +14,54 @@ serve(async (req) => {
 
   try {
     const { mintAddress } = await req.json()
-    const heliusKey = Deno.env.get('HELIUS_KEY')
-
-    if (!heliusKey) {
-      console.error('Helius API key not configured in Edge Function')
-      throw new Error('Helius API key not configured')
-    }
-
     console.log('Fetching metadata for mint:', mintAddress)
-    const response = await fetch(
-      `https://api.helius.xyz/v0/token-metadata?api-key=${heliusKey}&mint=${mintAddress}`
-    )
 
-    if (!response.ok) {
-      const errorText = await response.text()
-      console.error('Helius API error:', errorText)
-      throw new Error('Network response was not ok')
+    const HELIUS_KEY = Deno.env.get('HELIUS_KEY')
+    if (!HELIUS_KEY) {
+      throw new Error('HELIUS_KEY not configured')
     }
+
+    const response = await fetch(`https://api.helius.xyz/v0/token-metadata?api-key=${HELIUS_KEY}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        mintAccounts: [mintAddress],
+      }),
+    })
 
     const data = await response.json()
-    console.log('Metadata received for mint:', mintAddress, 'symbol:', data.symbol)
+    console.log('Helius API response:', data)
 
+    if (!response.ok) {
+      throw new Error('Failed to fetch token metadata')
+    }
+
+    const metadata = data[0]
     return new Response(
-      JSON.stringify({ symbol: data.symbol || 'Unknown' }),
+      JSON.stringify({
+        symbol: metadata?.onChainMetadata?.metadata?.symbol || 'Unknown',
+      }),
       {
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
-          ...corsHeaders
-        }
+          ...corsHeaders,
+        },
       }
     )
   } catch (error) {
-    console.error('Error in get-token-metadata function:', error)
+    console.error('Error in get-token-metadata:', error)
     return new Response(
-      JSON.stringify({ error: error.message }),
-      { 
+      JSON.stringify({
+        error: error.message,
+      }),
+      {
         status: 500,
         headers: {
           'Content-Type': 'application/json',
-          ...corsHeaders
-        }
+          ...corsHeaders,
+        },
       }
     )
   }
