@@ -1,3 +1,4 @@
+import { Buffer } from 'buffer';
 import { Connection, PublicKey, Transaction } from '@solana/web3.js';
 import { TOKEN_PROGRAM_ID, createBurnInstruction, createCloseAccountInstruction } from '@solana/spl-token';
 import { supabase } from '@/lib/supabase';
