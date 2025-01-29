@@ -49,15 +49,16 @@ export default defineConfig(({ mode }) => ({
   },
   build: {
     commonjsOptions: {
-      include: [/node_modules/],
+      include: 'node_modules/**',
       transformMixedEsModules: true
     },
     rollupOptions: {
+      input: path.resolve(__dirname, 'src/main.tsx'), // Ensure this points to your correct entry file
       external: ['path', 'fs', 'http', 'https', 'zlib', 'url'],
       output: {
         manualChunks: {
-          vendor: ['/node_modules/']
-        }
+          vendor: ['react', 'react-dom'] // Explicitly specify large dependencies
+        }        
       }
     }
   }
