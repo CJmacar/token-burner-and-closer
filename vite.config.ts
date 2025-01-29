@@ -17,7 +17,7 @@ export default defineConfig(({ mode }) => ({
     react(),
     mode === 'development' && componentTagger(),
     nodePolyfills({
-      include: ['process', 'buffer', 'util', 'stream', 'crypto'],
+      include: ['buffer', 'stream', 'util', 'crypto'],
       globals: {
         Buffer: true,
         global: true,
