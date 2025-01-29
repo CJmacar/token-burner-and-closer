@@ -17,7 +17,13 @@ export default defineConfig(({ mode }) => ({
     react(),
     mode === 'development' && componentTagger(),
     nodePolyfills({
-      include: ['process', 'buffer', 'util', 'stream']
+      include: ['process', 'buffer', 'util', 'stream', 'crypto'],
+      globals: {
+        Buffer: true,
+        global: true,
+        process: true,
+      },
+      protocolImports: true,
     })
   ].filter(Boolean),
   define: {
@@ -25,6 +31,7 @@ export default defineConfig(({ mode }) => ({
     'process.env.NODE_DEBUG': JSON.stringify(''),
     'process.platform': JSON.stringify(''),
     'process.version': JSON.stringify(''),
+    global: 'globalThis',
   },
   resolve: {
     alias: {
@@ -37,7 +44,8 @@ export default defineConfig(({ mode }) => ({
       https: 'https-browserify',
       zlib: 'browserify-zlib',
       url: 'url/',
-      util: 'util'
+      util: 'util',
+      crypto: 'crypto-browserify',
     },
   },
   optimizeDeps: {
@@ -49,15 +57,15 @@ export default defineConfig(({ mode }) => ({
   },
   build: {
     commonjsOptions: {
-      include: 'node_modules/**',
+      include: ['node_modules/**'],
       transformMixedEsModules: true
     },
     rollupOptions: {
-      input: path.resolve(__dirname, 'src/main.tsx'), // Ensure this points to your correct entry file
+      input: path.resolve(__dirname, 'src/main.tsx'),
       external: ['path', 'fs', 'http', 'https', 'zlib', 'url'],
       output: {
         manualChunks: {
-          vendor: ['react', 'react-dom'] // Explicitly specify large dependencies
+          vendor: ['react', 'react-dom']
         }        
       }
     }
