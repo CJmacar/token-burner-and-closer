@@ -32,8 +32,8 @@ export default defineConfig(({ mode }) => ({
     'process.platform': JSON.stringify(''),
     'process.version': JSON.stringify(''),
     global: 'globalThis',
-    'TextDecoder': ['TextDecoder'],
-    'TextEncoder': ['TextEncoder']
+    'TextDecoder': 'window.TextDecoder',
+    'TextEncoder': 'window.TextEncoder'
   },
   resolve: {
     alias: {
