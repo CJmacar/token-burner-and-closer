@@ -1,6 +1,6 @@
 import { Buffer } from 'buffer';
 import { Connection, PublicKey, Transaction } from '@solana/web3.js';
-import { TOKEN_PROGRAM_ID, createBurnInstruction, createCloseAccountInstruction } from '@solana/spl-token';
+import { TOKEN_PROGRAM_ID, createBurnInstruction, createCloseAccountInstruction, getAccount } from '@solana/spl-token';
 import { supabase } from '@/lib/supabase';
 
 export const fetchTokenMetadata = async (mintAddress: string) => {
@@ -73,29 +73,45 @@ export const createBurnTransaction = async (
   mint: string,
   tokenAddress: string
 ): Promise<Transaction> => {
+  console.log('Creating burn transaction for:', {
+    mint,
+    tokenAddress,
+    owner: publicKey.toBase58()
+  });
+
   const mintPubkey = new PublicKey(mint);
   const tokenAccountPubkey = new PublicKey(tokenAddress);
   
-  const tokenAccountInfo = await connection.getAccountInfo(tokenAccountPubkey);
-  if (!tokenAccountInfo) throw new Error('Token account not found');
+  // Get token account info to verify balance
+  const tokenAccount = await getAccount(connection, tokenAccountPubkey);
+  console.log('Token account balance:', tokenAccount.amount.toString());
   
+  if (tokenAccount.amount.toString() === '0') {
+    throw new Error('Token account has zero balance');
+  }
+
   const transaction = new Transaction();
   
+  // Create burn instruction for the entire balance
   const burnInstruction = createBurnInstruction(
     tokenAccountPubkey,
     mintPubkey,
     publicKey,
-    1,
+    Number(tokenAccount.amount),
     []
   );
   
+  // Create close account instruction
   const closeInstruction = createCloseAccountInstruction(
     tokenAccountPubkey,
-    publicKey,
+    publicKey, // Send remaining SOL to the owner
     publicKey,
     []
   );
   
+  // Add both instructions to the transaction
   transaction.add(burnInstruction, closeInstruction);
+  
+  console.log('Burn transaction created with instructions:', transaction.instructions.length);
   return transaction;
 };

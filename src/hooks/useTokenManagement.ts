@@ -43,6 +43,8 @@ export const useTokenManagement = () => {
     if (!publicKey) return;
 
     try {
+      console.log('Starting burn process for token:', mint);
+      
       const transaction = await createBurnTransaction(
         connection,
         publicKey,
@@ -50,15 +52,33 @@ export const useTokenManagement = () => {
         tokenAddress
       );
       
+      console.log('Sending burn transaction...');
       const signature = await sendTransaction(transaction, connection);
-      await connection.confirmTransaction(signature);
       
-      toast({
-        title: "Success",
-        description: "Token burned successfully",
-      });
+      console.log('Waiting for transaction confirmation...');
+      const confirmation = await connection.confirmTransaction(signature, 'confirmed');
       
-      await refreshTokens();
+      if (confirmation.value.err) {
+        throw new Error('Transaction failed to confirm');
+      }
+
+      console.log('Transaction confirmed:', signature);
+      
+      // Verify the token account is closed
+      try {
+        await connection.getAccountInfo(new PublicKey(tokenAddress));
+        throw new Error('Token account still exists');
+      } catch (e) {
+        // If getAccountInfo throws, it means the account is closed (good)
+        console.log('Token account successfully closed');
+        
+        toast({
+          title: "Success",
+          description: "Token burned successfully",
+        });
+        
+        await refreshTokens();
+      }
     } catch (error: any) {
       console.error('Error burning token:', error);
       
