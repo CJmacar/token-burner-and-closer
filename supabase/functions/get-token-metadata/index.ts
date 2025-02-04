@@ -14,7 +14,7 @@ serve(async (req) => {
   try {
     console.log('Edge function triggered');
     
-    const { mintAddress } = await req.json() as { mintAddress: string };
+    const { mintAddress } = await req.json();
     console.log('Received mint address:', mintAddress);
 
     const HELIUS_KEY = Deno.env.get('HELIUS_KEY');
@@ -23,7 +23,7 @@ serve(async (req) => {
     }
 
     console.log('Fetching metadata from Helius API');
-    const response = await fetch('https://api.helius.xyz/v0/token-metadata', {
+    const response = await fetch('https://api.helius-rpc.com/v0/token-metadata', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

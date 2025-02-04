@@ -5,7 +5,7 @@ import { supabase } from '@/lib/supabase';
 
 export const fetchTokenMetadata = async (mintAddress: string) => {
   try {
-    console.log('Attempting to call edge function for mint:', mintAddress);
+    console.log('Calling edge function for mint:', mintAddress);
     
     const { data, error } = await supabase.functions.invoke('get-token-metadata', {
       body: { mintAddress }
