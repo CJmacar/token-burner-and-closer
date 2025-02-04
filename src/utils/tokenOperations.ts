@@ -1,40 +1,22 @@
 import { Buffer } from 'buffer';
 import { Connection, PublicKey, Transaction } from '@solana/web3.js';
 import { TOKEN_PROGRAM_ID, createBurnInstruction, createCloseAccountInstruction, getAccount } from '@solana/spl-token';
+import { supabase } from '@/lib/supabase';
 
 export const fetchTokenMetadata = async (mintAddress: string) => {
   try {
-    console.log('Fetching metadata for mint:', mintAddress);
-    const HELIUS_KEY = import.meta.env.VITE_HELIUS_KEY;
-    
-    if (!HELIUS_KEY) {
-      console.error('HELIUS_KEY not configured');
-      return 'Unknown';
-    }
-
-    const response = await fetch('https://api.helius.xyz/v0/token-metadata', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        mintAccounts: [mintAddress],
-        apiKey: HELIUS_KEY,
-      }),
+    console.log('Calling edge function for mint:', mintAddress);
+    const { data, error } = await supabase.functions.invoke('get-token-metadata', {
+      body: { mintAddress }
     });
 
-    if (!response.ok) {
-      throw new Error('Failed to fetch metadata from Helius');
+    if (error) {
+      console.error('Edge function error:', error);
+      throw error;
     }
 
-    const data = await response.json();
-    console.log('Metadata received from Helius:', data);
-    
-    if (data && data[0] && data[0].onChainMetadata?.metadata?.symbol) {
-      return data[0].onChainMetadata.metadata.symbol;
-    }
-    
-    return 'Unknown';
+    console.log('Metadata received from edge function:', data);
+    return data.symbol || 'Unknown';
   } catch (error) {
     console.error('Error fetching token metadata:', error);
     return 'Unknown';
