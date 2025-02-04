@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import { useToast } from '@/components/ui/use-toast';
 import { fetchTokenAccounts, createBurnTransaction } from '@/utils/tokenOperations';
+import { PublicKey } from '@solana/web3.js';
 
 export interface TokenAccount {
   mint: string;
